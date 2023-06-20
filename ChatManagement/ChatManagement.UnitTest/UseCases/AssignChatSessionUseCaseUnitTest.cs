@@ -4,6 +4,7 @@ using ChatManagement.Services.UseCases.AssignChatSession;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ChatManagement.UnitTest.UseCases
@@ -16,7 +17,7 @@ namespace ChatManagement.UnitTest.UseCases
         public async Task Shold_PollingChatSessionUseCase_Can_Be_Execute_TestMethod()
         {
             //arrange
-            var existsChatSession = EntityGenerator.GetTestData_ValidChatSession();
+            var existsChatSession = TestDataGenerator.GetTestData_ValidChatSession();
             var queueRepositoryMock = new Mock<IChatSessionQueueRepository>();
             queueRepositoryMock
                 .Setup(mr => mr.Dequeue())
@@ -28,8 +29,9 @@ namespace ChatManagement.UnitTest.UseCases
                 .Setup(mr => mr.Save(It.IsAny<ChatSession>()))
                 .Callback<ChatSession>(r => resultChatSessionStored = r);
 
-            var office = EntityGenerator.GetTestData_Office_With_AvailableHours_And_HasAvailableAgents();
-            var existsAgent = office.GetNextAvailableAgent();
+            DateTime currentDateTime = DateTime.Parse("16/06/2023 10:00:00");
+            var office = TestDataGenerator.GetTestData_Office_With_AvailableHours_And_HasAvailableAgents();
+            var existsAgent = office.GetNextAvailableAgent(currentDateTime);
 
             var officeRepositoryMock = new Mock<IOfficeRepository>();
             officeRepositoryMock
@@ -46,7 +48,13 @@ namespace ChatManagement.UnitTest.UseCases
                 .Setup(mr => mr.Remove(It.IsAny<Guid>()))
                 .Callback<Guid>(r => resultChatMonitorStoredId = r);
 
+            var dateTimeManagerMock = new Mock<IDateTimeManager>();
+            dateTimeManagerMock
+                .Setup(d => d.GetCurrentTime())
+                .ReturnsAsync(currentDateTime);
+
             var usecase = new AssignChatSessionUseCase(
+                dateTimeManagerMock.Object,
                 officeRepositoryMock.Object,
                 monitorRepositoryMock.Object,
                 chatSessionRepositoryMock.Object,
@@ -56,10 +64,20 @@ namespace ChatManagement.UnitTest.UseCases
             await usecase.Execute();
 
             //assert
-            Assert.AreEqual(resultChatSessionStored.Id, existsChatSession.Id, "ChatSessionId Saved is not correct");
-            Assert.AreEqual(resultChatSessionStored.AgentId, existsAgent.Id, "AgentId Saved is not correct");
-            Assert.AreEqual(resultChatMonitorStoredId, existsChatSession.Id, "ChatSessionId Removed is not correct");
+            Assert.AreEqual(
+                resultChatSessionStored.Id, 
+                existsChatSession.Id, 
+                "ChatSessionId Saved is not correct");
+            Assert.AreEqual(
+                resultChatSessionStored.AgentId, 
+                existsAgent.Id, 
+                "AgentId Saved is not correct");
+            Assert.AreEqual(
+                resultChatMonitorStoredId, 
+                existsChatSession.Id, 
+                "ChatSessionId Removed is not correct");
             
         }
+
     }
 }

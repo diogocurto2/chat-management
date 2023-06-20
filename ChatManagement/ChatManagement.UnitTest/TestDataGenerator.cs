@@ -1,22 +1,22 @@
 ﻿using ChatManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ChatManagement.UnitTest
 {
-    public static class EntityGenerator
+    public static class TestDataGenerator
     {
+
+        public static DateTime GetTestData_CurrentDateTime()
+        {
+            return DateTime.Parse("16/06/2023 9:00:00");
+        }
 
         public static Agent GetTestData_NotAvailableAgent()
         {
             var name = Guid.NewGuid().ToString();
-            var teamId = Guid.NewGuid();
             var seniority = SeniorityLevel.Junior;
             var agent = new Agent(name, seniority);
-            agent.SetIsNotAvailable();
 
             return agent;
         }
@@ -24,7 +24,6 @@ namespace ChatManagement.UnitTest
         public static Agent GetTestData_AvailableAgent()
         {
             var name = Guid.NewGuid().ToString();
-            var teamId = Guid.NewGuid();
             var seniority = SeniorityLevel.Junior;
             var agent = new Agent(name, seniority);
 
@@ -34,7 +33,7 @@ namespace ChatManagement.UnitTest
         public static ChatMonitor GetTestData_ValidChatMonitor()
         {
             var chatSessionId = Guid.NewGuid();
-            var validDateTime = DateTime.Now; ;
+            var validDateTime = GetTestData_CurrentDateTime();
             var chatMonitor = new ChatMonitor(chatSessionId, validDateTime);
 
             return chatMonitor;
@@ -42,7 +41,7 @@ namespace ChatManagement.UnitTest
 
         public static ChatSession GetTestData_ValidChatSession()
         {
-            var validDateTime = DateTime.Now; ;
+            var validDateTime = GetTestData_CurrentDateTime();
             var chatSession = new ChatSession(validDateTime);
 
             return chatSession;
@@ -64,8 +63,11 @@ namespace ChatManagement.UnitTest
 
         public static Team GetTestData_Team_With_AvailableAgents()
         {
+            DateTime agentStartTime = GetTestData_CurrentDateTime().AddMinutes(-1);
             var availableAgent1 = GetTestData_ValidAgent();
+            availableAgent1.SetStartTime(agentStartTime);
             var availableAgent2 = GetTestData_ValidAgent();
+            availableAgent2.SetStartTime(agentStartTime);
             var team = GetTestData_ValidTeam();
             team.AddAgent(availableAgent1);
             team.AddAgent(availableAgent2);
@@ -76,9 +78,7 @@ namespace ChatManagement.UnitTest
         public static Team GetTestData_Team_With_NoAvailableAgents()
         {
             var availableAgent1 = GetTestData_ValidAgent();
-            availableAgent1.SetIsNotAvailable();
             var availableAgent2 = GetTestData_ValidAgent();
-            availableAgent2.SetIsNotAvailable();
             var team = GetTestData_ValidTeam();
             team.AddAgent(availableAgent1);
             team.AddAgent(availableAgent2);
@@ -102,8 +102,8 @@ namespace ChatManagement.UnitTest
 
             var team1 = GetTestData_Team_With_AvailableAgents();
             var team2 = GetTestData_Team_With_AvailableAgents();
-            office.AddTeam(team1);
-            office.AddTeam(team2);
+            office.AddTeam(team1, false);
+            office.AddTeam(team2, false);
 
             return office;
         }

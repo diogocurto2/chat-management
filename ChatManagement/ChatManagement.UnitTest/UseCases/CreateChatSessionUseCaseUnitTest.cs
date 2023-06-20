@@ -16,6 +16,7 @@ namespace ChatManagement.UnitTest.UseCases
         public async Task Shold_CreateChatSessionUseCase_Can_Be_Execute_TestMethod()
         {
             //arrange
+            var currentDateTime = DateTime.Parse("16/06/2023 9:00:00"); 
             var queueRepositoryMock = new Mock<IChatSessionQueueRepository>();
             ChatSession resultChatSessionStored = null;
             queueRepositoryMock
@@ -29,11 +30,10 @@ namespace ChatManagement.UnitTest.UseCases
                 .Callback<ChatMonitor>(r => resultChatMonitorStored = r);
 
             var dateTimeManagerMock = new Mock<IDateTimeManager>();
-            var currentDateTime = DateTime.Parse("16/06/2023 9:00:00");
             dateTimeManagerMock
                 .Setup(d => d.GetCurrentTime())
                 .ReturnsAsync(currentDateTime);
-            var office = EntityGenerator.GetTestData_Office_With_AvailableHours_And_HasAvailableAgents();
+            var office = TestDataGenerator.GetTestData_Office_With_AvailableHours_And_HasAvailableAgents();
 
             var officeRepositoryMock = new Mock<IOfficeRepository>();
             officeRepositoryMock
@@ -67,7 +67,7 @@ namespace ChatManagement.UnitTest.UseCases
             dateTimeManagerMock
                 .Setup(d => d.GetCurrentTime())
                 .ReturnsAsync(currentDateTime);
-            var officeMock = EntityGenerator.GetTestData_Office_With_AvailableHours();
+            var officeMock = TestDataGenerator.GetTestData_Office_With_AvailableHours();
             var officeConfigurationRepositoryMock = new Mock<IOfficeRepository>();
             officeConfigurationRepositoryMock
                 .Setup(o => o.Get())

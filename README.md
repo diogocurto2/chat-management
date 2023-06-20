@@ -30,8 +30,8 @@ Seniority Multipliers:
 - Senior: 0.8
 - Team Lead: 0.5
 
-## Examples: 
-1 -A team of 2 mid-levels and a junior will have a capacity of (2 x 10 x 0.6) + (1 x 10 x 0.4) = 16 concurrent chats capacity with a queue size of 24.
+### Example of Capacity: 
+A team of 2 mid-levels and a junior will have a capacity of (2 x 10 x 0.6) + (1 x 10 x 0.4) = 16 concurrent chats capacity with a queue size of 24.
 
 Teams available:
 - Team A: 1x team lead, 2x mid-level, 1x junior
@@ -39,10 +39,13 @@ Teams available:
 - Team C: 2x mid-level (night shift team)
 - Overflow team: x6 considered Junior.
   
-Assigning Chats:
+### Assigning Chats:
 
 Chats are assigned in a round robin fashion, preferring to assign the junior first, then mid, then senior etc.
 This ensures that the higher seniority are more available to assist the lower
+
+
+### Examples
 
 2 - A team of 2 people: 1 snr(cap 8), 1 jnr (cap 4).
 

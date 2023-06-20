@@ -18,7 +18,7 @@ namespace ChatManagement.Domain.Entities
 
         public IEnumerable<Team> Teams { get; private set; }
 
-        public Team OverdueTeam { get; private set; }
+        public Team OverflowTeam { get; private set; }
 
         public Office()
         {
@@ -37,7 +37,7 @@ namespace ChatManagement.Domain.Entities
             WeekDays = weekDays;
         }
 
-        public void AddTeam(Team team)
+        public void AddTeam(Team team, bool isOverflowTeam = false)
         {
             if (team == null )
                 throw new Exception("Invalid team.");
@@ -48,86 +48,68 @@ namespace ChatManagement.Domain.Entities
             var teams = Teams.ToList();
             teams.Add(team);
 
+            if (isOverflowTeam)
+                OverflowTeam = team;
+
             Teams = teams;
         }
 
-        //public void RemoveTeam(Guid teamId)
-        //{
-        //    if (teamId == Guid.Empty)
-        //        throw new Exception("Invalid team.");
-
-        //    var team = Teams.FirstOrDefault(t => t.Id == teamId);
-        //    if (team == null)
-        //        throw new Exception("Team not found.");
-
-        //    var teams = Teams.ToList();
-        //    teams.Remove(team);
-
-        //    Teams = teams;
-        //}
-
-        public bool IsDuringOfficeHours(DateTime time)
+        public bool IsDuringOfficeHours(DateTime dateTime)
         {
-            return time.TimeOfDay >= StartTime && time.TimeOfDay <= EndTime && WeekDays.Contains(time.DayOfWeek);
+            return dateTime.TimeOfDay >= StartTime && dateTime.TimeOfDay <= EndTime && WeekDays.Contains(dateTime.DayOfWeek);
         }
 
-        public bool HasAvailableAgents()
+        public bool HasAvailableAgents(DateTime dateTime)
         {
-            return Teams.Any(t => t.HasAvailableAgents());
+            return Teams.Any(t => t.HasAvailableAgents(dateTime));
         }
 
-        public int GetMaxQueueLength()
+        public int GetCapacity(DateTime dateTime)
         {
-            var maxQueueLength = 0;
+            var capacity = 0;
 
             foreach(var team in Teams)
             {
-                maxQueueLength++;
+                capacity+= team.GetCapacity(dateTime);
             }
 
-            return maxQueueLength;
+            return capacity;
         }
 
-        public Agent GetNextAvailableAgent()
+        public int GetMaximumQueueLength(DateTime dateTime)
         {
-            //int teamIndex = 0;  
+            var maximumQueueLength = 0;
 
-            //for (int i = 0; i < teams.Count; i++)
-            //{
-            //    Team currentTeam = teams[teamIndex];
+            maximumQueueLength = (int)Math.Round(GetCapacity(dateTime) * 1.5);
 
-            //    if (currentTeam.HasAvailableAgents())
-            //    {
-            //        return currentTeam;  
-            //    }
-
-            //    teamIndex = (teamIndex + 1) % teams.Count;  
-            //}
-
-            //return overflowTeam;
-
-            return GetNextAvailableTeam().Agents.Where(a => a.IsAvailable).FirstOrDefault();
+            return maximumQueueLength;
         }
 
-        private Team GetNextAvailableTeam()
+        public Agent GetNextAvailableAgent(DateTime dateTime)
         {
-            //int teamIndex = 0;  
+            Agent nextAvailableAgent = null;
 
-            //for (int i = 0; i < teams.Count; i++)
-            //{
-            //    Team currentTeam = teams[teamIndex];
+            var nextAvailableTeam = GetNextAvailableTeam(dateTime);
+            if(nextAvailableTeam != null)
+            {
+                nextAvailableAgent = nextAvailableTeam.GetNextAvailableAgent(dateTime);
+            }
 
-            //    if (currentTeam.HasAvailableAgents())
-            //    {
-            //        return currentTeam;  
-            //    }
+            return nextAvailableAgent;
+        }
 
-            //    teamIndex = (teamIndex + 1) % teams.Count;  
-            //}
+        private Team GetNextAvailableTeam(DateTime dateTime)
+        {
+            Team nextAvailableTeam = null;
 
-            //return overflowTeam;
+            nextAvailableTeam = Teams
+                .Where(t => t.HasAvailableAgents(dateTime))
+                .FirstOrDefault();
 
-            return Teams.FirstOrDefault();
+            if (nextAvailableTeam == null)
+                nextAvailableTeam = OverflowTeam;
+
+            return nextAvailableTeam;
         }
 
     }

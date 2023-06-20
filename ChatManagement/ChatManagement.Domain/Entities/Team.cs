@@ -38,32 +38,42 @@ namespace ChatManagement.Domain.Entities
             Agents = agents;
         }
 
-        public Agent GetNextAvailableAgent()
+        public int GetCapacity(DateTime dateTime)
         {
-            //int initialIndex = nextAgentIndex;
-            //do
-            //{
-            //    Agent currentAgent = Agents[nextAgentIndex];
+            var capacity = 0;
 
-            //    if (currentAgent.IsAvailable)
-            //    {
-            //        nextAgentIndex = (nextAgentIndex + 1) % Agents.Count;
+            foreach (var agent in GetAvailableAgents(dateTime))
+            {
+                capacity += agent.GetCapacity();
+            }
 
-            //        return currentAgent;
-            //    }
-
-            //    nextAgentIndex = (nextAgentIndex + 1) % Agents.Count;
-
-            //} while (nextAgentIndex != initialIndex); 
-
-            //return null;
-
-            return Agents.Where(agent => agent.IsAvailable).FirstOrDefault();
+            return capacity;
         }
 
-        public bool HasAvailableAgents()
+        public Agent GetNextAvailableAgent(DateTime dateTime)
         {
-            return Agents.Any(agent => agent.IsAvailable);
+            Agent nextAgent = null;
+            var availableAgents = GetAvailableAgents(dateTime);
+            foreach(var level in SeniorityLevelExtensions.GetSeniorityLevelsByPriority())
+            {
+                nextAgent = availableAgents
+                    .Where(agent => agent.Seniority == level)
+                    .FirstOrDefault();
+
+                if (nextAgent != null) break;
+            }
+
+            return nextAgent;
+        }
+
+        private IEnumerable<Agent> GetAvailableAgents(DateTime dateTime)
+        {
+            return Agents.Where(agent => agent.IsAvailable(dateTime)).ToList();
+        }
+
+        public bool HasAvailableAgents(DateTime dateTime)
+        {
+            return GetAvailableAgents(dateTime).Any();
         }
     }
 

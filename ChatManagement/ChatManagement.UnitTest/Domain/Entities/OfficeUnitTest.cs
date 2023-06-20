@@ -39,8 +39,6 @@ namespace ChatManagement.UnitTest.Domain.Entities
             Assert.AreEqual(office.WeekDays, expectedListOfWeekDays, "WeekDays is not correct");
         }
 
-        private static DateTime Time1 = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 18, 0, 0);
-
         [DataTestMethod]
         [DynamicData(nameof(GetTestData_IsDuringOfficeHours), DynamicDataSourceType.Method)]
         public void Shold_Office_IsDuringOfficeHours_TestMethod(DateTime timeToTest)
@@ -148,7 +146,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
             var office = new Office();
 
             //act
-            Action act = () => office.AddTeam(expectedTeam);
+            Action act = () => office.AddTeam(expectedTeam, false);
 
             //assert
             Assert.ThrowsException<Exception>(act);
@@ -161,10 +159,10 @@ namespace ChatManagement.UnitTest.Domain.Entities
             //arrange
             var expectedTeam = GetTestData_ValidTeam();
             var office = new Office();
-            office.AddTeam(expectedTeam);
+            office.AddTeam(expectedTeam, false);
 
             //act
-            Action act = () => office.AddTeam(expectedTeam);
+            Action act = () => office.AddTeam(expectedTeam, false);
 
             //assert
             Assert.ThrowsException<Exception>(act);
@@ -174,14 +172,15 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_Office_Can_HasAvailableAgents_TestMethod()
         {
             //arrange
-            var team1 = EntityGenerator.GetTestData_Team_With_AvailableAgents();
-            var team2 = EntityGenerator.GetTestData_Team_With_NoAvailableAgents();
+            DateTime currentDateTime = TestDataGenerator.GetTestData_CurrentDateTime();
+            var team1 = TestDataGenerator.GetTestData_Team_With_AvailableAgents();
+            var team2 = TestDataGenerator.GetTestData_Team_With_NoAvailableAgents();
             var office = new Office();
-            office.AddTeam(team1);
-            office.AddTeam(team2);
+            office.AddTeam(team1, false);
+            office.AddTeam(team2, false);
 
             //act
-            var result = office.HasAvailableAgents();
+            var result = office.HasAvailableAgents(currentDateTime);
 
             //assert
             Assert.IsTrue(result, "HasAvailableAgents is incorrect");
@@ -191,17 +190,78 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_Team_Cannot_HasAvailableAgents_TestMethod()
         {
             //arrange
-            var team1 = EntityGenerator.GetTestData_Team_With_NoAvailableAgents();
-            var team2 = EntityGenerator.GetTestData_Team_With_NoAvailableAgents();
+            DateTime currentDateTime = TestDataGenerator.GetTestData_CurrentDateTime();
+            var team1 = TestDataGenerator.GetTestData_Team_With_NoAvailableAgents();
+            var team2 = TestDataGenerator.GetTestData_Team_With_NoAvailableAgents();
             var office = new Office();
             office.AddTeam(team1);
             office.AddTeam(team2);
 
             //act
-            var result = office.HasAvailableAgents();
+            var result = office.HasAvailableAgents(currentDateTime);
 
             //assert
             Assert.IsFalse(result, "HasAvailableAgents is incorrect");
+        }
+
+        [TestMethod]
+        public void Shold_Team_Can_GetCapacity_TestMethod()
+        {
+            //arrange
+            var expectedCapacity = 16;
+            DateTime agentStartTime = TestDataGenerator.GetTestData_CurrentDateTime().AddMinutes(-1);
+            DateTime currentDateTime = TestDataGenerator.GetTestData_CurrentDateTime();
+            var agent1 = new Agent("Agent 1", SeniorityLevel.Junior);
+            agent1.SetStartTime(agentStartTime);
+            var agent2 = new Agent("Agent 2", SeniorityLevel.MidLevel);
+            agent2.SetStartTime(agentStartTime);
+            var agent3 = new Agent("Agent 3", SeniorityLevel.MidLevel);
+            agent3.SetStartTime(agentStartTime);
+            var team1 = TestDataGenerator.GetTestData_ValidTeam();
+            team1.AddAgent(agent3);
+            team1.AddAgent(agent2);
+            var team2 = TestDataGenerator.GetTestData_ValidTeam();
+            team2.AddAgent(agent1);
+
+            var office = new Office();
+            office.AddTeam(team2);
+            office.AddTeam(team1);
+
+            //act
+            var result = office.GetCapacity(currentDateTime);
+
+            //assert
+            Assert.AreEqual(expectedCapacity, result, "Capacity is incorrect");
+        }
+
+        [TestMethod]
+        public void Shold_Team_Can_GetMaximumQueueLength_TestMethod()
+        {
+            //arrange
+            var expectedCapacity = 24;
+            DateTime agentStartTime = TestDataGenerator.GetTestData_CurrentDateTime().AddMinutes(-1);
+            DateTime currentDateTime = TestDataGenerator.GetTestData_CurrentDateTime();
+            var agent1 = new Agent("Agent 1", SeniorityLevel.Junior);
+            agent1.SetStartTime(agentStartTime);
+            var agent2 = new Agent("Agent 2", SeniorityLevel.MidLevel);
+            agent2.SetStartTime(agentStartTime);
+            var agent3 = new Agent("Agent 3", SeniorityLevel.MidLevel);
+            agent3.SetStartTime(agentStartTime);
+            var team1 = TestDataGenerator.GetTestData_ValidTeam();
+            team1.AddAgent(agent3);
+            team1.AddAgent(agent2);
+            var team2 = TestDataGenerator.GetTestData_ValidTeam();
+            team2.AddAgent(agent1);
+
+            var office = new Office();
+            office.AddTeam(team2);
+            office.AddTeam(team1);
+
+            //act
+            var result = office.GetMaximumQueueLength(currentDateTime);
+
+            //assert
+            Assert.AreEqual(expectedCapacity, result, "Capacity is incorrect");
         }
 
     }

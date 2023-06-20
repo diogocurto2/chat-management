@@ -25,8 +25,8 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_ChatSession_Can_Be_Assign_TestMethod()
         {
             //arrange
-            var agent = EntityGenerator.GetTestData_NotAvailableAgent();
-            var chatSession = EntityGenerator.GetTestData_ValidChatSession();
+            var agent = TestDataGenerator.GetTestData_NotAvailableAgent();
+            var chatSession = TestDataGenerator.GetTestData_ValidChatSession();
 
             //act
             chatSession.Assign(agent); ;
@@ -41,7 +41,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
         {
             //arrange
             Agent agent = null;
-            var chatSession = EntityGenerator.GetTestData_ValidChatSession();
+            var chatSession = TestDataGenerator.GetTestData_ValidChatSession();
 
             //act
             Action act = () => chatSession.Assign(agent);

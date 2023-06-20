@@ -31,10 +31,10 @@ namespace ChatManagement.Services.UseCases.CreateChatSession
             if (!office.IsDuringOfficeHours(dateTimeNow))
                 throw new System.Exception("Out of office time.");
 
-            if (!office.HasAvailableAgents())
+            if (!office.HasAvailableAgents(dateTimeNow))
                 throw new System.Exception("There is no available agents.");
 
-            if(await _chatQueueService.IsFull(office.GetMaxQueueLength()))
+            if(await _chatQueueService.IsFull(office.GetMaximumQueueLength(dateTimeNow)))
                 throw new System.Exception("The chat sessions queue is full.");
 
             ChatSession session = new ChatSession(dateTimeNow);

@@ -27,7 +27,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_ChatMonitor_Deactivate_TestMethod()
         {
             //arrange
-            var chatMonitor = EntityGenerator.GetTestData_ValidChatMonitor();
+            var chatMonitor = TestDataGenerator.GetTestData_ValidChatMonitor();
             var currentDateTime = chatMonitor.LastPollTime.AddSeconds(3);
 
             //act
@@ -42,7 +42,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_ChatMonitor_Not_Deactivate_TestMethod()
         {
             //arrange
-            var chatMonitor = EntityGenerator.GetTestData_ValidChatMonitor();
+            var chatMonitor = TestDataGenerator.GetTestData_ValidChatMonitor();
             var currentDateTime = chatMonitor.LastPollTime.AddSeconds(2);
 
             //act
@@ -57,7 +57,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_ChatMonitor_Can_Deactivate_TestMethod()
         {
             //arrange
-            var chatMonitor = EntityGenerator.GetTestData_ValidChatMonitor();
+            var chatMonitor = TestDataGenerator.GetTestData_ValidChatMonitor();
             var currentDateTime = chatMonitor.LastPollTime.AddSeconds(3);
 
             //act
@@ -72,7 +72,7 @@ namespace ChatManagement.UnitTest.Domain.Entities
         public void Shold_ChatMonitor_Cannot_Deactivate_TestMethod()
         {
             //arrange
-            var chatMonitor = EntityGenerator.GetTestData_ValidChatMonitor();
+            var chatMonitor = TestDataGenerator.GetTestData_ValidChatMonitor();
             var currentDateTime = chatMonitor.LastPollTime.AddSeconds(2);
 
             //act

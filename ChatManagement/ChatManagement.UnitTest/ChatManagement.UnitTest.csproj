@@ -67,7 +67,7 @@
     <Compile Include="Domain\Entities\ChatMonitorUnitTest.cs" />
     <Compile Include="Domain\Entities\OfficeUnitTest.cs" />
     <Compile Include="Domain\Entities\ChatSessionUnitTest.cs" />
-    <Compile Include="EntityGenerator.cs" />
+    <Compile Include="TestDataGenerator.cs" />
     <Compile Include="UseCases\CreateChatSessionUseCaseUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UseCases\InactivateChatSessionsUseCaseUnitTest.cs" />
